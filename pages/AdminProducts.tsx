@@ -760,10 +760,11 @@ const AdminProducts: React.FC = () => {
 
                 // Deactivate all variants first
                 if (dbVariants && dbVariants.length > 0) {
-                    await supabase
+                    const { error: deactivateErr } = await supabase
                         .from('product_variants')
                         .update({ is_active: false })
                         .eq('product_id', savedProductId);
+                    if (deactivateErr) throw deactivateErr;
                 }
 
                 // Upsert active variants
@@ -780,22 +781,26 @@ const AdminProducts: React.FC = () => {
                         sku: variant.sku || null,
                         additional_price: variant.additional_price || 0,
                         stock_quantity: variant.stock_quantity || 0,
-                        is_active: true
+                        is_active: true,
+                        tenant_id: tenantId
                     };
 
                     if (existingInDb) {
-                        await supabase
+                        const { error: updateErr } = await supabase
                             .from('product_variants')
                             .update(variantData)
                             .eq('id', existingInDb.id);
+                        if (updateErr) throw updateErr;
                     } else {
-                        await supabase
+                        const { error: insertErr } = await supabase
                             .from('product_variants')
                             .insert([variantData]);
+                        if (insertErr) throw insertErr;
                     }
                 }
-            } catch (varErr) {
+            } catch (varErr: any) {
                 console.error('Error saving product variants:', varErr);
+                throw new Error(`Erro ao salvar variações de estoque: ${varErr.message || JSON.stringify(varErr)}`);
             }
 
             // Save size charts
