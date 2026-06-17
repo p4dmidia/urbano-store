@@ -1,0 +1,234 @@
+[
+  {
+    "id": 1,
+    "name": "ACESSÓRIOS"
+  },
+  {
+    "id": 2,
+    "name": "CARTEIRAS"
+  },
+  {
+    "id": 3,
+    "name": "CINTOS"
+  },
+  {
+    "id": 4,
+    "name": "PULSEIRAS"
+  },
+  {
+    "id": 5,
+    "name": "VESTUÁRIO MASCULINO"
+  },
+  {
+    "id": 6,
+    "name": "BERMUDAS"
+  },
+  {
+    "id": 7,
+    "name": "CAMISETAS"
+  },
+  {
+    "id": 8,
+    "name": "CALÇAS"
+  },
+  {
+    "id": 9,
+    "name": "CAMISA POLO"
+  },
+  {
+    "id": 10,
+    "name": "CAMISA SOCIAL MANGA CURTA"
+  },
+  {
+    "id": 11,
+    "name": "CAMISA SOCIAL MANGA LONGA"
+  },
+  {
+    "id": 12,
+    "name": "TERNOS & BLAZERS"
+  },
+  {
+    "id": 13,
+    "name": "MICROFIBRA"
+  },
+  {
+    "id": 14,
+    "name": "FIO INDIANO"
+  },
+  {
+    "id": 15,
+    "name": "POLIVISCOSE"
+  },
+  {
+    "id": 16,
+    "name": "BLAZERS"
+  },
+  {
+    "id": 17,
+    "name": "MARESIAS"
+  },
+  {
+    "id": 18,
+    "name": "SARJA"
+  },
+  {
+    "id": 19,
+    "name": "CALÇADO MASCULINO"
+  },
+  {
+    "id": 20,
+    "name": "SAPATÊNIS"
+  },
+  {
+    "id": 21,
+    "name": "TÊNIS"
+  },
+  {
+    "id": 22,
+    "name": "SAPATO SOCIAL"
+  },
+  {
+    "id": 23,
+    "name": "CHINELOS"
+  },
+  {
+    "id": 24,
+    "name": "FEMININO"
+  },
+  {
+    "id": 25,
+    "name": "ACESSÓRIOS FEMININOS"
+  },
+  {
+    "id": 26,
+    "name": "BOLSAS"
+  },
+  {
+    "id": 27,
+    "name": "CARTEIRAS FEMININAS"
+  },
+  {
+    "id": 28,
+    "name": "CINTOS FEMININOS"
+  },
+  {
+    "id": 29,
+    "name": "CALÇADOS"
+  },
+  {
+    "id": 30,
+    "name": "BOTAS"
+  },
+  {
+    "id": 31,
+    "name": "CHINELOS FEMININOS"
+  },
+  {
+    "id": 32,
+    "name": "MOCASSIM"
+  },
+  {
+    "id": 33,
+    "name": "MULES"
+  },
+  {
+    "id": 34,
+    "name": "PANTUFAS"
+  },
+  {
+    "id": 35,
+    "name": "RASTEIRAS"
+  },
+  {
+    "id": 36,
+    "name": "SAPATILHAS"
+  },
+  {
+    "id": 37,
+    "name": "SANDÁLIAS"
+  },
+  {
+    "id": 38,
+    "name": "SCARPIN"
+  },
+  {
+    "id": 39,
+    "name": "TAMANCOS"
+  },
+  {
+    "id": 40,
+    "name": "TÊNIS CASUAL"
+  },
+  {
+    "id": 41,
+    "name": "TÊNIS ESPORTIVO"
+  },
+  {
+    "id": 42,
+    "name": "VESTUÁRIO FEMININOS"
+  },
+  {
+    "id": 43,
+    "name": "CAMISETAS FEMININAS"
+  },
+  {
+    "id": 44,
+    "name": "BERMUDAS FEMININAS"
+  },
+  {
+    "id": 45,
+    "name": "CALÇAS FEMININAS"
+  },
+  {
+    "id": 46,
+    "name": "SAIAS"
+  },
+  {
+    "id": 47,
+    "name": "VESTIDOS"
+  },
+  {
+    "id": 48,
+    "name": "LINGERIE"
+  },
+  {
+    "id": 49,
+    "name": "CAMA"
+  },
+  {
+    "id": 50,
+    "name": "BASE BOX"
+  },
+  {
+    "id": 51,
+    "name": "TRAVESSEIROS"
+  },
+  {
+    "id": 52,
+    "name": "CABECEIRAS"
+  },
+  {
+    "id": 53,
+    "name": "COLCHÕES ESTÁTICOS"
+  },
+  {
+    "id": 54,
+    "name": "COLCHÕES TERAPÊUTICOS"
+  },
+  {
+    "id": 55,
+    "name": "CLASSE A"
+  },
+  {
+    "id": 56,
+    "name": "HAIFLEX"
+  },
+  {
+    "id": 57,
+    "name": "CONSÓRCIO"
+  },
+  {
+    "id": 58,
+    "name": "OFERTAS"
+  }
+]

@@ -1,0 +1,102 @@
+[
+  {
+    "id": "8425c6c5-a346-4e0f-9aee-504892142e1f",
+    "name": "CONSÓRCIO COLCHÃO TERAPÊUTICO TAMANHO \"CASAL QUEEN\" CLASSIC",
+    "category_id": 54
+  },
+  {
+    "id": "f03cf261-e4ad-4f6c-acf1-79c0f14783d0",
+    "name": "CONSÓRCIO COLCHÃO TERAPÊUTICO TAMANHO \"CASAL KING\" CLASSIC",
+    "category_id": 54
+  },
+  {
+    "id": "2040e966-1d98-4be6-bb87-4b91884311a1",
+    "name": "CONSÓRCIO COLCHÃO TERAPÊUTICO TAMANHO \"SOLTEIRO\" PRÓ-SAÚDE",
+    "category_id": 54
+  },
+  {
+    "id": "3fac9947-3262-47e2-8f6a-4c26e252f763",
+    "name": "CONSÓRCIO COLCHÃO TERAPÊUTICO TAMANHO \"CASAL PADRÃO\" PRÓ-SAÚDE",
+    "category_id": 54
+  },
+  {
+    "id": "b2940351-9c9e-4883-988a-0637f42a79bf",
+    "name": "CONSÓRCIO COLCHÃO TERAPÊUTICO TAMANHO \"CASAL QUEEN\" PRÓ-SAÚDE",
+    "category_id": 54
+  },
+  {
+    "id": "87ddb3ec-efb9-4d52-9604-d347cda8798d",
+    "name": "CONSÓRCIO COLCHÃO TERAPÊUTICO TAMANHO \"SOLTEIRO\" STYLE",
+    "category_id": 54
+  },
+  {
+    "id": "0a91ae3e-d485-4613-bacc-e33a7200750e",
+    "name": "CONSÓRCIO COLCHÃO TERAPÊUTICO TAMANHO \"CASAL PADRÃO\" STYLE",
+    "category_id": 54
+  },
+  {
+    "id": "988c5077-d63a-4c3d-bc2e-5cb58089612a",
+    "name": "CONSÓRCIO COLCHÃO TERAPÊUTICO TAMANHO \"CASAL QUEEN\" STYLE",
+    "category_id": 54
+  },
+  {
+    "id": "8973d37f-0fb9-4fc9-8ae3-679491508151",
+    "name": "CONSÓRCIO COLCHÃO ESTÁTICO TAMANHO \"SOLTEIRO\" PRÓ-SAÚDE",
+    "category_id": 53
+  },
+  {
+    "id": "f17643ec-b051-44b5-9cc5-8a36275cc8aa",
+    "name": "CONSÓRCIO COLCHÃO ESTÁTICO TAMANHO \"CASAL PADRÃO\" PRÓ-SAÚDE",
+    "category_id": 53
+  },
+  {
+    "id": "b6ca2ed9-6d76-4753-be0c-0f98c079d7cb",
+    "name": "CONSÓRCIO COLCHÃO ESTÁTICO TAMANHO ''CASAL QUEEN'' PRÓ-SAÚDE",
+    "category_id": 53
+  },
+  {
+    "id": "e1496a1f-1d39-4a67-bfe2-549af3fe61ec",
+    "name": "CONSÓRCIO COLCHÃO ESTÁTICO TAMANHO \"SOLTEIRO\" STYLE",
+    "category_id": 53
+  },
+  {
+    "id": "1cfc3c39-55c2-4e19-bd74-cde0313856b6",
+    "name": "CONSÓRCIO COLCHÃO TERAPÊUTICO TAMANHO \"CASAL PADRÃO\" INTENSE",
+    "category_id": 54
+  },
+  {
+    "id": "ea916b05-9ba3-4ebb-9899-59c4a7177124",
+    "name": "CONSÓRCIO COMBO MASTER CLASSE A",
+    "category_id": null
+  },
+  {
+    "id": "c9427033-b577-4f85-8fe3-3bdd94f7f6cc",
+    "name": "CONSÓRCIO COLCHÃO TERAPÊUTICO TAMANHO \"CASAL QUEEN\" INTENSE",
+    "category_id": 54
+  },
+  {
+    "id": "ead52cf3-9cff-470a-834f-50688066159c",
+    "name": "CONSÓRCIO COLCHÃO TERAPÊUTICO TAMANHO \"CASAL KING\" INTENSE",
+    "category_id": 54
+  },
+  {
+    "id": "0e8ff393-c98f-497e-af16-97f88a4aeb8f",
+    "name": "CONSÓRCIO COLCHÃO TERAPÊUTICO TAMANHO \"SOLTEIRO\" CLASSIC",
+    "category_id": 54
+  },
+  {
+    "id": "d69f323d-9dc3-4469-811f-4af5a1d40661",
+    "name": "CONSÓRCIO COLCHÃO TERAPÊUTICO TAMANHO \"CASAL PADRÃO\" CLASSIC",
+    "category_id": 54
+  },
+  {
+    "id": "4a68afc6-535a-4f26-b59e-881ad9433adf",
+    "name": "CONSÓRCIO COLCHÃO ESTÁTICO TAMANHO \"CASAL PADRÃO\" STYLE",
+    "category_id": 53
+  },
+  {
+    "id": "0fb5fc61-21f3-4cf4-bfaa-597d3b64fc37",
+    "name": "CONSÓRCIO COLCHÃO ESTÁTICO TAMANHO \"CASAL QUEEN\" STYLE",
+    "category_id": 53
+  }
+]

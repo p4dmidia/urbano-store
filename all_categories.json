@@ -1,0 +1,292 @@
+[
+  {
+    "id": 1,
+    "name": "ACESSÓRIOS",
+    "parent_id": null
+  },
+  {
+    "id": 25,
+    "name": "ACESSÓRIOS FEMININOS",
+    "parent_id": 24
+  },
+  {
+    "id": 50,
+    "name": "BASE BOX",
+    "parent_id": 49
+  },
+  {
+    "id": 6,
+    "name": "BERMUDAS",
+    "parent_id": 5
+  },
+  {
+    "id": 44,
+    "name": "BERMUDAS FEMININAS",
+    "parent_id": 42
+  },
+  {
+    "id": 16,
+    "name": "BLAZERS",
+    "parent_id": 12
+  },
+  {
+    "id": 26,
+    "name": "BOLSAS",
+    "parent_id": 25
+  },
+  {
+    "id": 30,
+    "name": "BOTAS",
+    "parent_id": 29
+  },
+  {
+    "id": 52,
+    "name": "CABECEIRAS",
+    "parent_id": 49
+  },
+  {
+    "id": 19,
+    "name": "CALÇADO MASCULINO",
+    "parent_id": null
+  },
+  {
+    "id": 29,
+    "name": "CALÇADOS",
+    "parent_id": 24
+  },
+  {
+    "id": 8,
+    "name": "CALÇAS",
+    "parent_id": 5
+  },
+  {
+    "id": 45,
+    "name": "CALÇAS FEMININAS",
+    "parent_id": 42
+  },
+  {
+    "id": 49,
+    "name": "CAMA",
+    "parent_id": null
+  },
+  {
+    "id": 9,
+    "name": "CAMISA POLO",
+    "parent_id": 5
+  },
+  {
+    "id": 10,
+    "name": "CAMISA SOCIAL MANGA CURTA",
+    "parent_id": 5
+  },
+  {
+    "id": 11,
+    "name": "CAMISA SOCIAL MANGA LONGA",
+    "parent_id": 5
+  },
+  {
+    "id": 7,
+    "name": "CAMISETAS",
+    "parent_id": 5
+  },
+  {
+    "id": 43,
+    "name": "CAMISETAS FEMININAS",
+    "parent_id": 42
+  },
+  {
+    "id": 2,
+    "name": "CARTEIRAS",
+    "parent_id": 1
+  },
+  {
+    "id": 27,
+    "name": "CARTEIRAS FEMININAS",
+    "parent_id": 25
+  },
+  {
+    "id": 23,
+    "name": "CHINELOS",
+    "parent_id": 19
+  },
+  {
+    "id": 31,
+    "name": "CHINELOS FEMININOS",
+    "parent_id": 29
+  },
+  {
+    "id": 3,
+    "name": "CINTOS",
+    "parent_id": 1
+  },
+  {
+    "id": 28,
+    "name": "CINTOS FEMININOS",
+    "parent_id": 25
+  },
+  {
+    "id": 55,
+    "name": "CLASSE A",
+    "parent_id": 54
+  },
+  {
+    "id": 53,
+    "name": "COLCHÕES ESTÁTICOS",
+    "parent_id": 49
+  },
+  {
+    "id": 54,
+    "name": "COLCHÕES TERAPÊUTICOS",
+    "parent_id": 49
+  },
+  {
+    "id": 57,
+    "name": "CONSÓRCIO",
+    "parent_id": null
+  },
+  {
+    "id": 24,
+    "name": "FEMININO",
+    "parent_id": null
+  },
+  {
+    "id": 14,
+    "name": "FIO INDIANO",
+    "parent_id": 12
+  },
+  {
+    "id": 56,
+    "name": "HAIFLEX",
+    "parent_id": 54
+  },
+  {
+    "id": 48,
+    "name": "LINGERIE",
+    "parent_id": 42
+  },
+  {
+    "id": 17,
+    "name": "MARESIAS",
+    "parent_id": 16
+  },
+  {
+    "id": 13,
+    "name": "MICROFIBRA",
+    "parent_id": 12
+  },
+  {
+    "id": 32,
+    "name": "MOCASSIM",
+    "parent_id": 29
+  },
+  {
+    "id": 33,
+    "name": "MULES",
+    "parent_id": 29
+  },
+  {
+    "id": 58,
+    "name": "OFERTAS",
+    "parent_id": null
+  },
+  {
+    "id": 34,
+    "name": "PANTUFAS",
+    "parent_id": 29
+  },
+  {
+    "id": 15,
+    "name": "POLIVISCOSE",
+    "parent_id": 12
+  },
+  {
+    "id": 4,
+    "name": "PULSEIRAS",
+    "parent_id": 1
+  },
+  {
+    "id": 35,
+    "name": "RASTEIRAS",
+    "parent_id": 29
+  },
+  {
+    "id": 46,
+    "name": "SAIAS",
+    "parent_id": 42
+  },
+  {
+    "id": 37,
+    "name": "SANDÁLIAS",
+    "parent_id": 29
+  },
+  {
+    "id": 20,
+    "name": "SAPATÊNIS",
+    "parent_id": 19
+  },
+  {
+    "id": 36,
+    "name": "SAPATILHAS",
+    "parent_id": 29
+  },
+  {
+    "id": 22,
+    "name": "SAPATO SOCIAL",
+    "parent_id": 19
+  },
+  {
+    "id": 18,
+    "name": "SARJA",
+    "parent_id": 16
+  },
+  {
+    "id": 38,
+    "name": "SCARPIN",
+    "parent_id": 29
+  },
+  {
+    "id": 39,
+    "name": "TAMANCOS",
+    "parent_id": 29
+  },
+  {
+    "id": 21,
+    "name": "TÊNIS",
+    "parent_id": 19
+  },
+  {
+    "id": 40,
+    "name": "TÊNIS CASUAL",
+    "parent_id": 29
+  },
+  {
+    "id": 41,
+    "name": "TÊNIS ESPORTIVO",
+    "parent_id": 29
+  },
+  {
+    "id": 12,
+    "name": "TERNOS & BLAZERS",
+    "parent_id": 5
+  },
+  {
+    "id": 51,
+    "name": "TRAVESSEIROS",
+    "parent_id": 49
+  },
+  {
+    "id": 47,
+    "name": "VESTIDOS",
+    "parent_id": 42
+  },
+  {
+    "id": 42,
+    "name": "VESTUÁRIO FEMININOS",
+    "parent_id": 24
+  },
+  {
+    "id": 5,
+    "name": "VESTUÁRIO MASCULINO",
+    "parent_id": null
+  }
+]
