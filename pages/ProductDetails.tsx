@@ -49,6 +49,8 @@ const ProductDetails: React.FC = () => {
     const [bodyProfile, setBodyProfile] = useState<any>(null);
     const [recommendedSize, setRecommendedSize] = useState<string | null>(null);
     const [isSizeChartModalOpen, setIsSizeChartModalOpen] = useState(false);
+    const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
+    const [isRelatedLoading, setIsRelatedLoading] = useState(true);
 
     const isMasculino = !!(
         product?.product_categories?.name?.toLowerCase().includes('masculin') || 
@@ -274,6 +276,69 @@ const ProductDetails: React.FC = () => {
             setIsLoading(false);
         }
     };
+
+    const fetchRelatedProducts = async () => {
+        if (!product) return;
+        setIsRelatedLoading(true);
+        try {
+            // 1. Fetch products of the same category, excluding the current product
+            const { data: related, error } = await supabase
+                .from('products')
+                .select(`
+                    *,
+                    product_categories (name)
+                `)
+                .eq('tenant_id', tenantId)
+                .eq('is_active', true)
+                .neq('id', product.id)
+                .eq('category_id', product.category_id)
+                .limit(4);
+
+            if (error) throw error;
+
+            let finalRelated = related || [];
+
+            // 2. If we have less than 4 related products, fetch additional active products
+            if (finalRelated.length < 4) {
+                const limit = 4 - finalRelated.length;
+                const existingIds = [product.id, ...finalRelated.map(r => r.id)];
+                const idFilter = `(${existingIds.join(',')})`;
+                
+                const { data: fallbackProducts, error: fallbackError } = await supabase
+                    .from('products')
+                    .select(`
+                        *,
+                        product_categories (name)
+                    `)
+                    .eq('tenant_id', tenantId)
+                    .eq('is_active', true)
+                    .not('id', 'in', idFilter)
+                    .limit(limit)
+                    .order('created_at', { ascending: false });
+
+                if (!fallbackError && fallbackProducts) {
+                    finalRelated = [...finalRelated, ...fallbackProducts];
+                }
+            }
+
+            const formatted = finalRelated.map(p => ({
+                ...p,
+                category: p.product_categories?.name || 'Mais Vendido'
+            }));
+
+            setRelatedProducts(formatted);
+        } catch (error) {
+            console.error('Error fetching related products:', error);
+        } finally {
+            setIsRelatedLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (product?.id) {
+            fetchRelatedProducts();
+        }
+    }, [product?.id]);
 
     const [selectedVariations, setSelectedVariations] = useState<{ [key: string]: string }>({});
 
@@ -881,6 +946,146 @@ const ProductDetails: React.FC = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Related Products Section */}
+            <section className="border-t border-zinc-100 pt-16 mt-16 pb-12">
+                <div className="container mx-auto px-4">
+                    <div className="text-center max-w-2xl mx-auto mb-16 space-y-4">
+                        <span className="inline-block bg-[#FBC02D]/10 text-[#05080F] text-[10px] font-bold tracking-widest uppercase px-3.5 py-1.5 rounded-xl border border-[#FBC02D]/25">
+                            COMPLEMENTE SEU LOOK
+                        </span>
+                        <h2 className="text-3xl font-extrabold text-[#111111] tracking-tight">
+                            Produtos Relacionados
+                        </h2>
+                        <p className="text-slate-500 text-sm md:text-base leading-relaxed">
+                            As peças mais procuradas da nossa vitrine urbana que combinam perfeitamente com você.
+                        </p>
+                    </div>
+
+                    {isRelatedLoading ? (
+                        <div className="flex items-center justify-center py-20">
+                            <Loader2 className="w-8 h-8 text-[#FBC02D] animate-spin" />
+                        </div>
+                    ) : relatedProducts.length > 0 ? (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                            {relatedProducts.map((p) => {
+                                const basePrice = p.base_price ?? p.price ?? 0;
+                                const originalPrice = basePrice * 1.4;
+                                const installment = basePrice / 12;
+                                const cashback = basePrice * 0.1;
+
+                                return (
+                                    <div
+                                        key={p.id}
+                                        onClick={() => {
+                                            navigate(`/p/${p.id}`);
+                                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                                        }}
+                                        className="group flex flex-col h-full bg-white border border-slate-100 rounded-3xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-1.5 cursor-pointer relative"
+                                    >
+                                        {/* Image Container */}
+                                        <div className="relative aspect-[3/4] overflow-hidden bg-zinc-50 flex items-center justify-center">
+                                            <img
+                                                src={(p.image_url || p.image || '').split(',')[0]?.trim() || 'https://placehold.co/600x600?text=Classe+A'}
+                                                alt={p.name}
+                                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                                onError={(e: any) => {
+                                                    e.target.src = 'https://placehold.co/600x600?text=Classe+A';
+                                                }}
+                                            />
+                                            
+                                            {/* Wishlist toggle */}
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    toggleWishlist(p);
+                                                }}
+                                                className="absolute bottom-4 right-4 z-20 bg-white/95 backdrop-blur-sm rounded-xl p-2.5 text-zinc-800 shadow-sm hover:bg-white transition-all"
+                                                title={isInWishlist(p.id) ? "Remover dos favoritos" : "Adicionar aos favoritos"}
+                                            >
+                                                <Heart className={`w-4 h-4 transition-colors ${isInWishlist(p.id) ? 'fill-rose-500 text-rose-500' : 'text-zinc-400 hover:text-rose-500'}`} />
+                                            </button>
+
+                                            {/* Top badges */}
+                                            <div className="absolute top-4 left-4 flex flex-col gap-1.5 z-10">
+                                                <span className="bg-[#E53935] text-white text-[9px] font-black tracking-wider px-2 py-0.5 rounded uppercase">
+                                                    LIQUIDA 6.6
+                                                </span>
+                                                <span className="bg-black text-white text-[9px] font-black tracking-wider px-2 py-0.5 rounded uppercase">
+                                                    MAIS VENDIDO
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        {/* Info Panel */}
+                                        <div className="p-5 flex flex-col flex-grow justify-between space-y-4">
+                                            <div className="space-y-1">
+                                                <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">{p.category}</p>
+                                                <h3 className="font-bold text-zinc-950 text-sm line-clamp-2 leading-snug group-hover:text-zinc-700 transition-colors">
+                                                    {p.name}
+                                                </h3>
+                                            </div>
+
+                                            <div className="space-y-3 pt-2">
+                                                <div className="flex items-baseline gap-2">
+                                                    <span className="text-zinc-950 font-black text-lg">
+                                                        R$ {basePrice.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                                    </span>
+                                                    <span className="text-zinc-400 text-xs line-through">
+                                                        R$ {originalPrice.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                                    </span>
+                                                    <span className="bg-[#E53935] text-white text-[9px] font-bold px-1.5 py-0.5 rounded">
+                                                        -30%
+                                                    </span>
+                                                </div>
+
+                                                <p className="text-xs text-zinc-500 font-medium">
+                                                    em até 12x de <span className="font-bold text-[#111111]">R$ {installment.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                                                </p>
+
+                                                <div className="flex flex-wrap gap-1.5">
+                                                    <span className="inline-flex items-center text-[9px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-md">
+                                                        7% OFF no pix
+                                                    </span>
+                                                    <span className="inline-flex items-center text-[9px] font-bold text-white bg-emerald-800 px-2 py-0.5 rounded-md">
+                                                        Envio Prioritário
+                                                    </span>
+                                                </div>
+
+                                                <div className="flex items-center gap-2 p-2.5 bg-[#F5F5F5] rounded-xl border border-slate-105 text-[10px] text-slate-600 font-bold">
+                                                    <span>💰</span>
+                                                    <span>Ganhe R$ {cashback.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} de CashBack!</span>
+                                                </div>
+
+                                                <div className="pt-2">
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            addToCart(p);
+                                                            toast.success(`${p.name} adicionado ao carrinho!`);
+                                                        }}
+                                                        disabled={(p.stock_quantity ?? 0) <= 0}
+                                                        className={`w-full font-bold py-3.5 px-4 rounded-xl text-xs uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-2 shadow-sm ${
+                                                            (p.stock_quantity ?? 0) > 0 
+                                                            ? 'bg-black hover:bg-zinc-900 text-white' 
+                                                            : 'bg-zinc-100 text-zinc-400 cursor-not-allowed'
+                                                        }`}
+                                                    >
+                                                        <ShoppingCart className="w-4 h-4 shrink-0" />
+                                                        {(p.stock_quantity ?? 0) > 0 ? 'Adicionar ao Carrinho' : 'Esgotado'}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    ) : (
+                        <p className="text-center text-zinc-400 font-bold py-10">Nenhum produto relacionado encontrado.</p>
+                    )}
+                </div>
+            </section>
 
             <TryOnModal
                 isOpen={isTryOnOpen}
