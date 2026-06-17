@@ -309,14 +309,14 @@ const AdminProducts: React.FC = () => {
         }
     };
 
-    const fetchProductVariants = async (productId: string) => {
+    const fetchProductVariants = async (productId: string, fallbackVariations?: any) => {
         try {
             const { data, error } = await supabase
                 .from('product_variants')
                 .select('*')
                 .eq('product_id', productId)
                 .eq('is_active', true);
-            if (!error && data) {
+            if (!error && data && data.length > 0) {
                 setVariants(data.map(v => ({
                     id: v.id,
                     size: v.size,
@@ -327,7 +327,30 @@ const AdminProducts: React.FC = () => {
                     variant_image_url: v.variant_image_url || ''
                 })));
             } else {
-                setVariants([]);
+                if (fallbackVariations) {
+                    const sizes = fallbackVariations.sizes || [];
+                    const numbering = fallbackVariations.numbering || [];
+                    const activeSizes = sizes.length > 0 ? sizes : (numbering.length > 0 ? numbering : ['Único']);
+
+                    const colors = fallbackVariations.colors || [];
+                    const activeColors = colors.length > 0 ? colors : ['Única'];
+
+                    const newVariants: VariantState[] = [];
+                    activeSizes.forEach((size: string) => {
+                        activeColors.forEach((color: string) => {
+                            newVariants.push({
+                                size,
+                                color,
+                                sku: '',
+                                additional_price: 0,
+                                stock_quantity: 0
+                            });
+                        });
+                    });
+                    setVariants(newVariants);
+                } else {
+                    setVariants([]);
+                }
             }
         } catch (err) {
             console.error('Error fetching product variants:', err);
@@ -451,7 +474,7 @@ const AdminProducts: React.FC = () => {
             tips_raw: ''
         });
         fetchSizeChart(prod.id, prod.variations?.sizes?.join(', ') || '');
-        fetchProductVariants(prod.id);
+        fetchProductVariants(prod.id, prod.variations);
         setIsNewModalOpen(true);
     };
 
