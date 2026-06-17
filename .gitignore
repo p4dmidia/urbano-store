@@ -27,6 +27,8 @@ dist-ssr
 /scratch/
 /*.py
 /*.js
+!/tailwind.config.js
+!/postcss.config.js
 /*.cjs
 /*.ps1
 /*.txt
