@@ -43,6 +43,15 @@ function resolveCategory(categoryName?: string): string {
     if (name.includes("vestido") || name.includes("macacão") || name.includes("macacao") || name.includes("one-piece") || name.includes("body")) {
         return "one-piece";
     }
+    if (name.includes("óculos") || name.includes("oculos")) {
+        return "glasses";
+    }
+    if (name.includes("brinco") || name.includes("anel") || name.includes("colar") || name.includes("pulseira") || name.includes("joia") || name.includes("jóia") || name.includes("semijoia")) {
+        return "jewelry";
+    }
+    if (name.includes("acessório") || name.includes("acessorio") || name.includes("bolsa") || name.includes("boné") || name.includes("bone")) {
+        return "accessory";
+    }
     return "top";
 }
 
@@ -156,6 +165,23 @@ async function describeGarmentOrPerson(url: string, prompt: string, apiKey: stri
     } catch (e) {
         console.error("Error calling Gemini Flash:", e);
         return null;
+    }
+}
+
+async function getDetailedGarmentDescription(imageResolved: string, size: string, color: string): Promise<string> {
+    const fallback = `Peça de tamanho ${size || 'M'} e cor ${color || ''}`;
+    if (!GEMINI_API_KEY) return fallback;
+    
+    try {
+        const desc = await describeGarmentOrPerson(
+            imageResolved,
+            "Describe this clothing item in detail for a virtual try-on model. Focus on its type (e.g., t-shirt, hoodie, pants, dress), color, fabric texture, sleeves, neckline, and patterns. Keep it under 50 words in English.",
+            GEMINI_API_KEY
+        );
+        return desc || fallback;
+    } catch (err) {
+        console.error("Error in getDetailedGarmentDescription:", err);
+        return fallback;
     }
 }
 
@@ -410,6 +436,8 @@ async function startJobProcessing(supabase: any, asset: any) {
     if (REPLICATE_API_TOKEN) {
         try {
             const categoryMapping = categoryResolved === "one-piece" ? "dress" : (categoryResolved === "bottom" ? "lower_body" : "upper_body");
+            const garmentDesResolved = await getDetailedGarmentDescription(garmentImageResolved, sizeResolved, colorResolved);
+            
             const response = await fetch("https://api.replicate.com/v1/predictions", {
                 method: "POST",
                 headers: {
@@ -424,7 +452,7 @@ async function startJobProcessing(supabase: any, asset: any) {
                         category: categoryMapping,
                         garm_img: garmentImageResolved,
                         human_img: humanImageInput,
-                        garment_des: `Peça de tamanho ${sizeResolved} e cor ${colorResolved}`,
+                        garment_des: garmentDesResolved,
                         force_dc: false,
                         seed: 42
                     }
@@ -827,6 +855,8 @@ serve(async (req) => {
 
                         let newReplicateId = "";
                         try {
+                            const nextGarmentDesResolved = await getDetailedGarmentDescription(nextGarmentImage, vRow?.size || 'M', vRow?.color || '');
+                            
                             const response = await fetch("https://api.replicate.com/v1/predictions", {
                                 method: "POST",
                                 headers: {
@@ -841,7 +871,7 @@ serve(async (req) => {
                                         category: nextCategoryResolved,
                                         garm_img: nextGarmentImage,
                                         human_img: stepOutputUrl,
-                                        garment_des: `Peça de tamanho ${vRow?.size || 'M'} e cor ${vRow?.color || ''}`,
+                                        garment_des: nextGarmentDesResolved,
                                         force_dc: false,
                                         seed: 42
                                     }

@@ -325,6 +325,20 @@ const getRecommendedSizeFromChart = (
 
 
 
+const loadScript = (src: string): Promise<void> => {
+    return new Promise((resolve, reject) => {
+        if (document.querySelector(`script[src="${src}"]`)) {
+            resolve();
+            return;
+        }
+        const script = document.createElement('script');
+        script.src = src;
+        script.onload = () => resolve();
+        script.onerror = () => reject(new Error(`Failed to load script ${src}`));
+        document.head.appendChild(script);
+    });
+};
+
 export const TryOnModal: React.FC<TryOnModalProps> = ({
     isOpen,
     onClose,
@@ -343,14 +357,182 @@ export const TryOnModal: React.FC<TryOnModalProps> = ({
         product?.name?.toLowerCase().includes('masculin') ||
         product?.name?.toLowerCase().includes('masc')
     );
+
+    const isARCategory = (prod: any) => {
+        if (!prod) return false;
+        const name = (prod.product_categories?.name || prod.category || prod.name || '').toLowerCase();
+        return (
+            name.includes('óculos') || name.includes('oculos') ||
+            name.includes('brinco') || name.includes('anel') ||
+            name.includes('colar') || name.includes('pulseira') ||
+            name.includes('joia') || name.includes('jóia') ||
+            name.includes('semijoia') || name.includes('acessório') ||
+            name.includes('acessorio')
+        );
+    };
+    
+    const isARProduct = isARCategory(product);
     
     // Recommended Size
     const [recommendedSize, setRecommendedSize] = useState<string | null>(null);
     
     // VTON States
-    const [step, setStep] = useState<'form' | 'adjust_body' | 'tryon' | 'select_avatar_photo' | 'outfit_suggestions'>('form');
+    const [step, setStep] = useState<'form' | 'adjust_body' | 'tryon' | 'select_avatar_photo' | 'outfit_suggestions' | 'ar_tryon'>(
+        isARProduct ? 'ar_tryon' : 'form'
+    );
     const [localSelectedSize, setLocalSelectedSize] = useState<string | null>(null);
     const [isManualSelection, setIsManualSelection] = useState(false);
+
+    // AR camera state
+    const [arLoading, setArLoading] = useState(false);
+    const [arActive, setArActive] = useState(false);
+    const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
+    const videoRef = useRef<HTMLVideoElement | null>(null);
+    const canvasRef = useRef<HTMLCanvasElement | null>(null);
+    const cameraObjRef = useRef<any>(null);
+
+    const stopAR = () => {
+        if (cameraObjRef.current) {
+            try {
+                cameraObjRef.current.stop();
+            } catch (e) {
+                console.error("Error stopping cameraObj:", e);
+            }
+            cameraObjRef.current = null;
+        }
+        if (cameraStream) {
+            cameraStream.getTracks().forEach(track => {
+                try {
+                    track.stop();
+                } catch (e) {
+                    console.error("Error stopping track:", e);
+                }
+            });
+            setCameraStream(null);
+        }
+        setArActive(false);
+    };
+
+    const startAR = async () => {
+        setArLoading(true);
+        try {
+            await loadScript('https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js');
+            await loadScript('https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js');
+
+            if (!videoRef.current || !canvasRef.current) {
+                throw new Error("Elementos de câmera ou canvas não encontrados.");
+            }
+
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: { width: 640, height: 480, facingMode: 'user' },
+                audio: false
+            });
+            videoRef.current.srcObject = stream;
+            videoRef.current.play();
+            setCameraStream(stream);
+
+            const FaceMesh = (window as any).FaceMesh;
+            const Camera = (window as any).Camera;
+
+            const faceMesh = new FaceMesh({
+                locateFile: (file: string) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
+            });
+
+            faceMesh.setOptions({
+                maxNumFaces: 1,
+                refineLandmarks: true,
+                minDetectionConfidence: 0.5,
+                minTrackingConfidence: 0.5
+            });
+
+            const itemImg = new Image();
+            const productImages = product.images || (product.image_url ? product.image_url.split(',') : []);
+            itemImg.src = activeVariant?.variant_image_url || productImages[0] || '';
+            itemImg.crossOrigin = "anonymous";
+
+            const canvas = canvasRef.current;
+            const ctx = canvas.getContext('2d');
+
+            faceMesh.onResults((results: any) => {
+                if (!ctx || !canvas || !videoRef.current) return;
+
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.save();
+                ctx.translate(canvas.width, 0);
+                ctx.scale(-1, 1);
+                ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+
+                if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
+                    const landmarks = results.multiFaceLandmarks[0];
+                    const dist = (p1: any, p2: any) => Math.sqrt((p1.x - p2.x)**2 + (p1.y - p2.y)**2);
+
+                    const name = (product.product_categories?.name || product.category || product.name || '').toLowerCase();
+                    const isGlasses = name.includes('óculos') || name.includes('oculos');
+                    
+                    if (isGlasses) {
+                        const bridge = landmarks[168];
+                        const leftEye = landmarks[33];
+                        const rightEye = landmarks[263];
+
+                        if (bridge && leftEye && rightEye) {
+                            const bridgeX = bridge.x * canvas.width;
+                            const bridgeY = bridge.y * canvas.height;
+                            const eyeDist = dist(leftEye, rightEye) * canvas.width;
+                            const glassesWidth = eyeDist * 1.9;
+                            const glassesHeight = glassesWidth * (itemImg.height / itemImg.width || 0.4);
+                            const angle = Math.atan2(
+                                (rightEye.y - leftEye.y) * canvas.height,
+                                (rightEye.x - leftEye.x) * canvas.width
+                            );
+
+                            ctx.save();
+                            ctx.translate(bridgeX, bridgeY);
+                            ctx.rotate(-angle);
+                            ctx.drawImage(itemImg, -glassesWidth / 2, -glassesHeight / 2, glassesWidth, glassesHeight);
+                            ctx.restore();
+                        }
+                    } else {
+                        // Earrings / Accessories
+                        const rightEarlobe = landmarks[172];
+                        const leftEarlobe = landmarks[397];
+                        const leftEye = landmarks[33];
+                        const rightEye = landmarks[263];
+
+                        if (rightEarlobe && leftEarlobe && leftEye && rightEye) {
+                            const eyeDist = dist(leftEye, rightEye) * canvas.width;
+                            const earringWidth = eyeDist * 0.35;
+                            const earringHeight = earringWidth * (itemImg.height / itemImg.width || 1.0);
+
+                            const leftX = leftEarlobe.x * canvas.width;
+                            const leftY = leftEarlobe.y * canvas.height;
+                            ctx.drawImage(itemImg, leftX - earringWidth / 2, leftY, earringWidth, earringHeight);
+
+                            const rightX = rightEarlobe.x * canvas.width;
+                            const rightY = rightEarlobe.y * canvas.height;
+                            ctx.drawImage(itemImg, rightX - earringWidth / 2, rightY, earringWidth, earringHeight);
+                        }
+                    }
+                }
+                ctx.restore();
+            });
+
+            const camera = new Camera(videoRef.current, {
+                onFrame: async () => {
+                    await faceMesh.send({ image: videoRef.current! });
+                },
+                width: 640,
+                height: 480
+            });
+            camera.start();
+            cameraObjRef.current = camera;
+            setArActive(true);
+        } catch (err) {
+            console.error("Failed to start AR:", err);
+            toast.error("Não foi possível acessar a câmera para o provador virtual.");
+        } finally {
+            setArLoading(false);
+        }
+    };
 
     useEffect(() => {
         if (!isOpen || (step !== 'tryon' && step !== 'outfit_suggestions')) {
@@ -372,6 +554,24 @@ export const TryOnModal: React.FC<TryOnModalProps> = ({
             }
         }
     }, [isOpen, activeVariant?.size, recommendedSize, step]);
+
+    useEffect(() => {
+        if (isOpen && step === 'ar_tryon' && !arActive && !arLoading) {
+            startAR();
+        }
+        return () => {
+            if (!isOpen || step !== 'ar_tryon') {
+                stopAR();
+            }
+        };
+    }, [isOpen, step]);
+
+    useEffect(() => {
+        if (isOpen && arActive && step === 'ar_tryon' && activeVariant?.id) {
+            stopAR();
+            startAR();
+        }
+    }, [activeVariant?.id]);
     const [gender, setGender] = useState<'male' | 'female'>(isMasculino ? 'male' : 'female');
     const [heightInput, setHeightInput] = useState('');
     const [weightInput, setWeightInput] = useState('');
@@ -508,6 +708,7 @@ export const TryOnModal: React.FC<TryOnModalProps> = ({
             if (intervalRef.current) {
                 clearInterval(intervalRef.current);
             }
+            stopAR();
         };
     }, []);
 
@@ -518,6 +719,7 @@ export const TryOnModal: React.FC<TryOnModalProps> = ({
             }
             setIsGenerating(false);
             setGenerationProgress(0);
+            stopAR();
         }
     }, [isOpen]);
 
@@ -596,7 +798,11 @@ export const TryOnModal: React.FC<TryOnModalProps> = ({
                 } else {
                     setSelectedAvatarId('female_slim');
                 }
-                setStep('tryon');
+                if (!isARProduct) {
+                    setStep('tryon');
+                } else {
+                    setStep('ar_tryon');
+                }
             } else {
                 setBodyProfile(null);
                 setHeightInput('');
@@ -610,11 +816,19 @@ export const TryOnModal: React.FC<TryOnModalProps> = ({
                 setUseCustomPhoto(false);
                 setTryonResultUrl(null);
                 setGender(isMasculino ? 'male' : 'female');
-                setStep('form');
+                if (!isARProduct) {
+                    setStep('form');
+                } else {
+                    setStep('ar_tryon');
+                }
             }
         } catch (err) {
             console.error('Error loading body profile for try-on:', err);
-            setStep('form');
+            if (!isARProduct) {
+                setStep('form');
+            } else {
+                setStep('ar_tryon');
+            }
         }
     };
 
@@ -1091,6 +1305,137 @@ export const TryOnModal: React.FC<TryOnModalProps> = ({
                         <X className="w-5 h-5" />
                     </button>
                 </div>
+
+                {/* Content Layout */}
+                {step === 'ar_tryon' && (
+                    <div className="flex-grow flex flex-col lg:flex-row overflow-y-auto lg:overflow-hidden h-full">
+                        {/* Left: Camera Feed & Canvas */}
+                        <div className="w-full lg:w-1/2 bg-slate-50 p-8 flex flex-col items-center justify-center border-r border-slate-100 lg:h-full shrink-0 relative overflow-hidden">
+                            <div className="relative w-full max-w-[400px] aspect-[3/4] bg-black rounded-[2.5rem] border border-slate-200 shadow-2xl overflow-hidden flex items-center justify-center">
+                                <video
+                                    ref={videoRef}
+                                    playsInline
+                                    muted
+                                    className="hidden"
+                                    width={640}
+                                    height={480}
+                                />
+                                <canvas
+                                    ref={canvasRef}
+                                    className="w-full h-full object-cover transform scale-x-[-1]"
+                                    width={640}
+                                    height={480}
+                                />
+                                {arLoading && (
+                                    <div className="absolute inset-0 bg-white/90 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center">
+                                        <Loader2 className="w-8 h-8 text-[#0B1221] animate-spin mb-3" />
+                                        <p className="text-xs font-black text-slate-700 uppercase tracking-wider">Iniciando Câmera AR...</p>
+                                        <p className="text-[10px] text-slate-400 font-bold mt-1">Carregando filtros inteligentes e rastreamento facial...</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Right: Product details and action buttons */}
+                        <div className="w-full lg:w-1/2 p-8 md:p-10 flex flex-col justify-between overflow-y-auto lg:h-full">
+                            <div className="space-y-6 my-auto">
+                                <div className="flex items-center gap-2">
+                                    <span className="bg-emerald-500/10 text-emerald-600 text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg">Custo Zero AR</span>
+                                    <span className="bg-[#FBC02D]/10 text-[#0B1221] text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg">Tempo Real</span>
+                                </div>
+                                <div>
+                                    <h3 className="text-2xl font-black text-[#0B1221] mt-1">{product.name}</h3>
+                                    <p className="text-xs text-slate-400 font-bold mt-1">Aproveite nosso espelho virtual para testar a peça. Posicione seu rosto em frente à câmera.</p>
+                                </div>
+
+                                {/* Variant Selection */}
+                                <div className="space-y-4">
+                                    {colorsList.length > 0 && (
+                                        <div>
+                                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Cores disponíveis:</span>
+                                            <div className="flex flex-wrap gap-2">
+                                                {colorsList.map(c => {
+                                                    const isSelected = activeVariant?.color === c;
+                                                    const isDisabled = isColorOptionDisabled(c);
+                                                    return (
+                                                        <button
+                                                            key={c}
+                                                            disabled={isDisabled}
+                                                            onClick={() => {
+                                                                onVariantChange(activeVariant?.size || '', c, 'color');
+                                                            }}
+                                                            className={`px-3 py-2 rounded-xl text-xs font-black border-2 transition-all ${
+                                                                isSelected
+                                                                ? 'bg-[#0B1221] border-[#0B1221] text-white shadow-sm'
+                                                                : isDisabled
+                                                                ? 'bg-slate-50 border-slate-100 text-slate-300 cursor-not-allowed opacity-50 line-through'
+                                                                : 'bg-white border-slate-100 text-slate-600 hover:border-slate-200'
+                                                            }`}
+                                                        >
+                                                            {c}
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {sizesList.length > 0 && (
+                                        <div>
+                                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Tamanhos:</span>
+                                            <div className="flex flex-wrap gap-2">
+                                                {sizesList.map(s => {
+                                                    const isSelected = activeVariant?.size === s;
+                                                    const isDisabled = isSizeOptionDisabled(s);
+                                                    return (
+                                                        <button
+                                                            key={s}
+                                                            disabled={isDisabled}
+                                                            onClick={() => {
+                                                                onVariantChange(s, activeVariant?.color || '', 'size');
+                                                            }}
+                                                            className={`px-3 py-2 rounded-xl text-xs font-black border-2 transition-all ${
+                                                                isSelected
+                                                                ? 'bg-[#0B1221] border-[#0B1221] text-white shadow-sm'
+                                                                : isDisabled
+                                                                ? 'bg-slate-50 border-slate-100 text-slate-300 cursor-not-allowed opacity-50 line-through'
+                                                                : 'bg-white border-slate-100 text-slate-600 hover:border-slate-200'
+                                                            }`}
+                                                        >
+                                                            {s}
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Purchase & Action Buttons */}
+                            <div className="space-y-4 pt-6 border-t border-slate-100">
+                                <div className="flex gap-4">
+                                    <button
+                                        type="button"
+                                        onClick={onClose}
+                                        className="w-1/3 bg-slate-100 hover:bg-slate-200 text-slate-700 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all text-center"
+                                    >
+                                        Fechar
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={handleAddToBag}
+                                        disabled={!activeVariant || (activeVariant.stock_quantity ?? 0) <= 0}
+                                        className="flex-grow bg-[#FBC02D] hover:bg-[#f9b100] text-[#0B1221] py-4 px-8 rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-xl shadow-[#FBC02D]/10 disabled:bg-slate-100 disabled:text-slate-400 disabled:shadow-none"
+                                    >
+                                        <ShoppingCart className="w-4 h-4" />
+                                        {(!activeVariant || (activeVariant.stock_quantity ?? 0) <= 0) ? 'ESGOTADO' : 'ADICIONAR À BAG'}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 {/* Content Layout */}
                 {step === 'form' && (
